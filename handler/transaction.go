@@ -40,10 +40,31 @@ func (h *transactionHandler) GetCampaignTransactions(c *gin.Context) {
 
 	response := helper.APIResponse("Campaign's transactions", http.StatusOK, "success", transaction.FormatCampaignTransactions(transactions))
 	c.JSON(http.StatusOK, response)
+
+	// parameter di uri
+	// tangkap parameter mapping ke input struct
+	// panggil service, input struct sebagai parameter
+	// service, berbekal campaign id
+	// respository mencari data transaction suatu campaign
 }
 
-// parameter di uri
-// tangkap parameter mapping ke input struct
-// panggil service, input struct sebagai parameter
-// service, berbekal campaign id
-// respository mencari data transaction suatu campaign
+func (h *transactionHandler) GetUserTransactions(c *gin.Context) {
+	currentUser := c.MustGet("currentUser").(user.User)
+	userID := currentUser.ID
+
+	transactions, err := h.service.GetTransactionsByUserID(userID)
+	if err != nil {
+		response := helper.APIResponse("Failed to get user's transactions ", http.StatusBadRequest, "error", nil)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	response := helper.APIResponse("User's transactions", http.StatusOK, "success", transaction.FormatUserTransactions(transactions))
+	c.JSON(http.StatusOK, response)
+
+	// GetUserTransactions
+	// handler
+	// ambil nilai user dari jwt/midleware
+	// service
+	// repository => ambil data transactions (preload campaign)
+}
